@@ -1,0 +1,313 @@
+
+LineFollower.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000001a6  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         0000000e  00800060  000001a6  0000023a  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000006  0080006e  0080006e  00000248  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  00000248  2**0
+                  CONTENTS, READONLY
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000278  2**2
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000070  00000000  00000000  000002b4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   00000927  00000000  00000000  00000324  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 00000720  00000000  00000000  00000c4b  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   000003be  00000000  00000000  0000136b  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  000000cc  00000000  00000000  0000172c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    000003f4  00000000  00000000  000017f8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    000001cd  00000000  00000000  00001bec  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000078  00000000  00000000  00001db9  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+   8:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+   c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  10:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  14:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  18:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  1c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  20:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  24:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  28:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  2c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  30:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  34:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  38:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  3c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  40:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  44:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  48:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  4c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  50:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d4 e0       	ldi	r29, 0x04	; 4
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_copy_data>:
+  60:	10 e0       	ldi	r17, 0x00	; 0
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	e6 ea       	ldi	r30, 0xA6	; 166
+  68:	f1 e0       	ldi	r31, 0x01	; 1
+  6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
+  6c:	05 90       	lpm	r0, Z+
+  6e:	0d 92       	st	X+, r0
+  70:	ae 36       	cpi	r26, 0x6E	; 110
+  72:	b1 07       	cpc	r27, r17
+  74:	d9 f7       	brne	.-10     	; 0x6c <__do_copy_data+0xc>
+
+00000076 <__do_clear_bss>:
+  76:	20 e0       	ldi	r18, 0x00	; 0
+  78:	ae e6       	ldi	r26, 0x6E	; 110
+  7a:	b0 e0       	ldi	r27, 0x00	; 0
+  7c:	01 c0       	rjmp	.+2      	; 0x80 <.do_clear_bss_start>
+
+0000007e <.do_clear_bss_loop>:
+  7e:	1d 92       	st	X+, r1
+
+00000080 <.do_clear_bss_start>:
+  80:	a4 37       	cpi	r26, 0x74	; 116
+  82:	b2 07       	cpc	r27, r18
+  84:	e1 f7       	brne	.-8      	; 0x7e <.do_clear_bss_loop>
+  86:	0e 94 81 00 	call	0x102	; 0x102 <main>
+  8a:	0c 94 d1 00 	jmp	0x1a2	; 0x1a2 <_exit>
+
+0000008e <__bad_interrupt>:
+  8e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+00000092 <uart_putchar>:
+	MOTOR_PORT |= (1 << MOTOR_LEFT_IN2);
+	MOTOR_PORT &= ~((1 << MOTOR_RIGHT_IN1) | (1 << MOTOR_LEFT_IN1) | (1 << MOTOR_RIGHT_IN2));
+}
+
+void robot_stop() {
+	MOTOR_PORT = 0x00;	
+  92:	cf 93       	push	r28
+  94:	c8 2f       	mov	r28, r24
+  96:	8a 30       	cpi	r24, 0x0A	; 10
+  98:	19 f4       	brne	.+6      	; 0xa0 <uart_putchar+0xe>
+  9a:	8d e0       	ldi	r24, 0x0D	; 13
+  9c:	0e 94 49 00 	call	0x92	; 0x92 <uart_putchar>
+  a0:	5d 9b       	sbis	0x0b, 5	; 11
+  a2:	fe cf       	rjmp	.-4      	; 0xa0 <uart_putchar+0xe>
+  a4:	cc b9       	out	0x0c, r28	; 12
+  a6:	80 e0       	ldi	r24, 0x00	; 0
+  a8:	90 e0       	ldi	r25, 0x00	; 0
+  aa:	cf 91       	pop	r28
+  ac:	08 95       	ret
+
+000000ae <init_ios>:
+  ae:	8f ef       	ldi	r24, 0xFF	; 255
+  b0:	81 bb       	out	0x11, r24	; 17
+  b2:	12 ba       	out	0x12, r1	; 18
+  b4:	08 95       	ret
+
+000000b6 <init_adc>:
+  b6:	37 9a       	sbi	0x06, 7	; 6
+  b8:	86 b1       	in	r24, 0x06	; 6
+  ba:	86 60       	ori	r24, 0x06	; 6
+  bc:	86 b9       	out	0x06, r24	; 6
+  be:	3e 9a       	sbi	0x07, 6	; 7
+  c0:	3d 98       	cbi	0x07, 5	; 7
+  c2:	08 95       	ret
+
+000000c4 <read_adc>:
+  c4:	97 b1       	in	r25, 0x07	; 7
+  c6:	87 70       	andi	r24, 0x07	; 7
+  c8:	98 2b       	or	r25, r24
+  ca:	97 b9       	out	0x07, r25	; 7
+  cc:	36 9a       	sbi	0x06, 6	; 6
+  ce:	34 9b       	sbis	0x06, 4	; 6
+  d0:	fe cf       	rjmp	.-4      	; 0xce <read_adc+0xa>
+  d2:	34 9a       	sbi	0x06, 4	; 6
+  d4:	87 b1       	in	r24, 0x07	; 7
+  d6:	88 7f       	andi	r24, 0xF8	; 248
+  d8:	87 b9       	out	0x07, r24	; 7
+  da:	84 b1       	in	r24, 0x04	; 4
+  dc:	95 b1       	in	r25, 0x05	; 5
+  de:	08 95       	ret
+
+000000e0 <robot_forward>:
+  e0:	82 b3       	in	r24, 0x12	; 18
+  e2:	8a 60       	ori	r24, 0x0A	; 10
+  e4:	82 bb       	out	0x12, r24	; 18
+  e6:	82 b3       	in	r24, 0x12	; 18
+  e8:	8a 7f       	andi	r24, 0xFA	; 250
+  ea:	82 bb       	out	0x12, r24	; 18
+  ec:	08 95       	ret
+
+000000ee <robot_left>:
+  ee:	91 9a       	sbi	0x12, 1	; 18
+  f0:	82 b3       	in	r24, 0x12	; 18
+  f2:	82 7f       	andi	r24, 0xF2	; 242
+  f4:	82 bb       	out	0x12, r24	; 18
+  f6:	08 95       	ret
+
+000000f8 <robot_right>:
+  f8:	93 9a       	sbi	0x12, 3	; 18
+  fa:	82 b3       	in	r24, 0x12	; 18
+  fc:	88 7f       	andi	r24, 0xF8	; 248
+  fe:	82 bb       	out	0x12, r24	; 18
+ 100:	08 95       	ret
+
+00000102 <main>:
+int main(void) {
+
+    uint16_t left_sensor = 0, mid_sensor_l = 0, mid_sensor_r = 0, right_sensor = 0;
+
+	/*init_UART();*/
+	init_adc();
+ 102:	0e 94 5b 00 	call	0xb6	; 0xb6 <init_adc>
+	init_ios();
+ 106:	0e 94 57 00 	call	0xae	; 0xae <init_ios>
+	// Setup for pipelining UART data to C standard IO library making printf() work
+    static FILE mystdout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
+    stdout = &mystdout;	
+ 10a:	80 e6       	ldi	r24, 0x60	; 96
+ 10c:	90 e0       	ldi	r25, 0x00	; 0
+ 10e:	90 93 71 00 	sts	0x0071, r25	; 0x800071 <__data_end+0x3>
+ 112:	80 93 70 00 	sts	0x0070, r24	; 0x800070 <__data_end+0x2>
+	
+    while (1) {
+		left_sensor = read_adc(0);
+ 116:	80 e0       	ldi	r24, 0x00	; 0
+ 118:	0e 94 62 00 	call	0xc4	; 0xc4 <read_adc>
+ 11c:	8c 01       	movw	r16, r24
+		mid_sensor_l = read_adc(1);
+ 11e:	81 e0       	ldi	r24, 0x01	; 1
+ 120:	0e 94 62 00 	call	0xc4	; 0xc4 <read_adc>
+ 124:	7c 01       	movw	r14, r24
+		mid_sensor_r = read_adc(2);
+ 126:	82 e0       	ldi	r24, 0x02	; 2
+ 128:	0e 94 62 00 	call	0xc4	; 0xc4 <read_adc>
+ 12c:	ec 01       	movw	r28, r24
+		right_sensor = read_adc(3);
+ 12e:	83 e0       	ldi	r24, 0x03	; 3
+ 130:	0e 94 62 00 	call	0xc4	; 0xc4 <read_adc>
+ 134:	9c 01       	movw	r18, r24
+	ADCSRA|=(1<<ADIF);					// clearing of ADIF, it is done by writing 1 to it
+	ADMUX &= 0b11111000;
+	return ADC;
+}
+uint8_t check_sensor(uint16_t sensor_val) {
+	if( sensor_val > 280) 
+ 136:	91 e0       	ldi	r25, 0x01	; 1
+ 138:	49 e1       	ldi	r20, 0x19	; 25
+ 13a:	e4 16       	cp	r14, r20
+ 13c:	41 e0       	ldi	r20, 0x01	; 1
+ 13e:	f4 06       	cpc	r15, r20
+ 140:	08 f4       	brcc	.+2      	; 0x144 <main+0x42>
+ 142:	90 e0       	ldi	r25, 0x00	; 0
+		left_sensor = read_adc(0);
+		mid_sensor_l = read_adc(1);
+		mid_sensor_r = read_adc(2);
+		right_sensor = read_adc(3);
+
+		if(check_sensor(mid_sensor_l) && check_sensor(mid_sensor_r) && (!check_sensor(left_sensor)) && (!check_sensor(right_sensor))) robot_forward();
+ 144:	99 23       	and	r25, r25
+ 146:	e9 f0       	breq	.+58     	; 0x182 <main+0x80>
+ 148:	c9 31       	cpi	r28, 0x19	; 25
+ 14a:	81 e0       	ldi	r24, 0x01	; 1
+ 14c:	d8 07       	cpc	r29, r24
+ 14e:	10 f1       	brcs	.+68     	; 0x194 <main+0x92>
+ 150:	09 31       	cpi	r16, 0x19	; 25
+ 152:	11 40       	sbci	r17, 0x01	; 1
+ 154:	a0 f4       	brcc	.+40     	; 0x17e <main+0x7c>
+ 156:	29 31       	cpi	r18, 0x19	; 25
+ 158:	31 40       	sbci	r19, 0x01	; 1
+ 15a:	30 f4       	brcc	.+12     	; 0x168 <main+0x66>
+ 15c:	0e 94 70 00 	call	0xe0	; 0xe0 <robot_forward>
+ 160:	da cf       	rjmp	.-76     	; 0x116 <main+0x14>
+		else if(check_sensor(left_sensor) && check_sensor(mid_sensor_l) && (!check_sensor(mid_sensor_r)) && (!check_sensor(right_sensor))) robot_right();
+ 162:	0e 94 7c 00 	call	0xf8	; 0xf8 <robot_right>
+ 166:	d7 cf       	rjmp	.-82     	; 0x116 <main+0x14>
+	ADMUX &= 0b11111000;
+	return ADC;
+}
+uint8_t check_sensor(uint16_t sensor_val) {
+	if( sensor_val > 280) 
+		return 1;
+ 168:	80 e0       	ldi	r24, 0x00	; 0
+		mid_sensor_r = read_adc(2);
+		right_sensor = read_adc(3);
+
+		if(check_sensor(mid_sensor_l) && check_sensor(mid_sensor_r) && (!check_sensor(left_sensor)) && (!check_sensor(right_sensor))) robot_forward();
+		else if(check_sensor(left_sensor) && check_sensor(mid_sensor_l) && (!check_sensor(mid_sensor_r)) && (!check_sensor(right_sensor))) robot_right();
+		else if(check_sensor(right_sensor) && check_sensor(mid_sensor_r) && (!check_sensor(mid_sensor_l)) && (!check_sensor(left_sensor))) robot_left();
+ 16a:	c9 31       	cpi	r28, 0x19	; 25
+ 16c:	d1 40       	sbci	r29, 0x01	; 1
+ 16e:	38 f0       	brcs	.+14     	; 0x17e <main+0x7c>
+ 170:	91 11       	cpse	r25, r1
+ 172:	05 c0       	rjmp	.+10     	; 0x17e <main+0x7c>
+ 174:	81 11       	cpse	r24, r1
+ 176:	03 c0       	rjmp	.+6      	; 0x17e <main+0x7c>
+ 178:	0e 94 77 00 	call	0xee	; 0xee <robot_left>
+ 17c:	cc cf       	rjmp	.-104    	; 0x116 <main+0x14>
+	MOTOR_PORT |= (1 << MOTOR_LEFT_IN2);
+	MOTOR_PORT &= ~((1 << MOTOR_RIGHT_IN1) | (1 << MOTOR_LEFT_IN1) | (1 << MOTOR_RIGHT_IN2));
+}
+
+void robot_stop() {
+	MOTOR_PORT = 0x00;	
+ 17e:	12 ba       	out	0x12, r1	; 18
+ 180:	ca cf       	rjmp	.-108    	; 0x116 <main+0x14>
+	ADCSRA|=(1<<ADIF);					// clearing of ADIF, it is done by writing 1 to it
+	ADMUX &= 0b11111000;
+	return ADC;
+}
+uint8_t check_sensor(uint16_t sensor_val) {
+	if( sensor_val > 280) 
+ 182:	81 e0       	ldi	r24, 0x01	; 1
+ 184:	09 31       	cpi	r16, 0x19	; 25
+ 186:	11 40       	sbci	r17, 0x01	; 1
+ 188:	08 f4       	brcc	.+2      	; 0x18c <main+0x8a>
+ 18a:	80 e0       	ldi	r24, 0x00	; 0
+		mid_sensor_r = read_adc(2);
+		right_sensor = read_adc(3);
+
+		if(check_sensor(mid_sensor_l) && check_sensor(mid_sensor_r) && (!check_sensor(left_sensor)) && (!check_sensor(right_sensor))) robot_forward();
+		else if(check_sensor(left_sensor) && check_sensor(mid_sensor_l) && (!check_sensor(mid_sensor_r)) && (!check_sensor(right_sensor))) robot_right();
+		else if(check_sensor(right_sensor) && check_sensor(mid_sensor_r) && (!check_sensor(mid_sensor_l)) && (!check_sensor(left_sensor))) robot_left();
+ 18c:	29 31       	cpi	r18, 0x19	; 25
+ 18e:	31 40       	sbci	r19, 0x01	; 1
+ 190:	60 f7       	brcc	.-40     	; 0x16a <main+0x68>
+ 192:	f5 cf       	rjmp	.-22     	; 0x17e <main+0x7c>
+		mid_sensor_l = read_adc(1);
+		mid_sensor_r = read_adc(2);
+		right_sensor = read_adc(3);
+
+		if(check_sensor(mid_sensor_l) && check_sensor(mid_sensor_r) && (!check_sensor(left_sensor)) && (!check_sensor(right_sensor))) robot_forward();
+		else if(check_sensor(left_sensor) && check_sensor(mid_sensor_l) && (!check_sensor(mid_sensor_r)) && (!check_sensor(right_sensor))) robot_right();
+ 194:	09 31       	cpi	r16, 0x19	; 25
+ 196:	11 40       	sbci	r17, 0x01	; 1
+ 198:	90 f3       	brcs	.-28     	; 0x17e <main+0x7c>
+ 19a:	29 31       	cpi	r18, 0x19	; 25
+ 19c:	31 40       	sbci	r19, 0x01	; 1
+ 19e:	78 f7       	brcc	.-34     	; 0x17e <main+0x7c>
+ 1a0:	e0 cf       	rjmp	.-64     	; 0x162 <main+0x60>
+
+000001a2 <_exit>:
+ 1a2:	f8 94       	cli
+
+000001a4 <__stop_program>:
+ 1a4:	ff cf       	rjmp	.-2      	; 0x1a4 <__stop_program>
