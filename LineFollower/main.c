@@ -13,19 +13,14 @@
 #define BAUD 9600
 #define UBBR_VAL (((F_CPU)/(BAUD*16UL)) - 1)            // Calculate value for UBBR
 
-#define MOTOR_PORT PORTD
-#define MOTOR_PORT_DIRN DDRD
+#define MOTOR_LEFT_PORT			PORTD
+#define MOTOR_LEFT_PORT_DIRN	DDRD
+#define MOTOR_LEFT_PIN			PORTD7
 
-#define MOTOR_RIGHT_IN1 PORTD0
-#define MOTOR_RIGHT_IN2 PORTD1
+#define MOTOR_RIGHT_PORT		PORTB
+#define MOTOR_RIGHT_PORT_DIRN	DDRB
+#define MOTOR_RIGHT_PIN			PORTB3
 
-#define MOTOR_LEFT_IN1 PORTD2
-#define MOTOR_LEFT_IN2 PORTD3
-
-void init_ios() {
-	MOTOR_PORT_DIRN = 0xFF;
-	MOTOR_PORT = 0x00;
-}
 
 void init_UART(void) {
 	UBRRL = UBBR_VAL;                           // Write to Lower UBBR register
@@ -59,6 +54,24 @@ unsigned int read_adc(unsigned char channel) {
 	ADMUX &= 0b11111000;
 	return ADC;
 }
+void pwm_motor_left(uint8_t duty) {
+	OCR2 = duty;
+	return;
+}
+
+void pwm_motor_right(uint8_t duty) {
+	OCR0 = duty;
+	return;
+}
+
+void init_pwm(void) {
+	MOTOR_RIGHT_PORT_DIRN |=(1 << MOTOR_RIGHT_PIN);
+	TCCR0 = 0x62;			
+	
+	MOTOR_LEFT_PORT_DIRN |=(1 << MOTOR_LEFT_PIN);		
+	TCCR2 = 0x62;
+}
+
 uint8_t check_sensor(uint16_t sensor_val) {
 	if( sensor_val > 280) 
 		return 1;
@@ -66,46 +79,53 @@ uint8_t check_sensor(uint16_t sensor_val) {
 		return 0;
 }
 
-void robot_forward() {
-	MOTOR_PORT |= (1 << MOTOR_RIGHT_IN2) | (1 << MOTOR_LEFT_IN2);
-	MOTOR_PORT &= ~((1 << MOTOR_RIGHT_IN1) | (1 << MOTOR_LEFT_IN1));
-}
-
-void robot_left() {
-	MOTOR_PORT |= (1 << MOTOR_RIGHT_IN2);
-	MOTOR_PORT &= ~((1 << MOTOR_RIGHT_IN1) | (1 << MOTOR_LEFT_IN1) | (1 << MOTOR_LEFT_IN2));
-}
-
-void robot_right() {
-	MOTOR_PORT |= (1 << MOTOR_LEFT_IN2);
-	MOTOR_PORT &= ~((1 << MOTOR_RIGHT_IN1) | (1 << MOTOR_LEFT_IN1) | (1 << MOTOR_RIGHT_IN2));
-}
-
-void robot_stop() {
-	MOTOR_PORT = 0x00;	
-}
-
 int main(void) {
 
     uint16_t left_sensor = 0, mid_sensor_l = 0, mid_sensor_r = 0, right_sensor = 0;
 
-	/*init_UART();*/
+	init_UART();
 	init_adc();
-	init_ios();
+	init_pwm();
+	pwm_motor_left(128);
+	pwm_motor_right(128);
+	/*init_ios();*/
+	
 	// Setup for pipelining UART data to C standard IO library making printf() work
     static FILE mystdout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
     stdout = &mystdout;	
+	uint16_t sensor_raw[6];
+	
+	char error_weight[] = {-3, -2, -1, 1, 2, 3}; 
+		
+	float error = 0.0;
+	float pos_current = 0.0;
+	float pos_target = 0.0;
+	
+	// Tunning parameters 
+	float Kp = 0.0;
+	
+	
+	// P, I and D values 
+	float P = 0.0;
+	
+	
 	
     while (1) {
-		left_sensor = read_adc(0);
-		mid_sensor_l = read_adc(1);
-		mid_sensor_r = read_adc(2);
-		right_sensor = read_adc(3);
+		for(uint8_t i = 0; i < 6; i++) {
+			sensor_raw[i] = read_adc(i);
+		}
+		printf("Sensor 0 : %d\tSensor 1 : %d\tSensor 2 : %d\tSensor 3 : %d\tSensor 4 : %d\tSensor 5 : %d\n", sensor_raw[0], sensor_raw[1], sensor_raw[2], sensor_raw[3], sensor_raw[4], sensor_raw[5]);
+		_delay_ms(500);
+		
+// 		left_sensor = read_adc(0);
+// 		mid_sensor_l = read_adc(1);
+// 		mid_sensor_r = read_adc(2);
+// 		right_sensor = read_adc(3);
 
-		if(check_sensor(mid_sensor_l) && check_sensor(mid_sensor_r) && (!check_sensor(left_sensor)) && (!check_sensor(right_sensor))) robot_forward();
-		else if(check_sensor(left_sensor) && check_sensor(mid_sensor_l) && (!check_sensor(mid_sensor_r)) && (!check_sensor(right_sensor))) robot_right();
-		else if(check_sensor(right_sensor) && check_sensor(mid_sensor_r) && (!check_sensor(mid_sensor_l)) && (!check_sensor(left_sensor))) robot_left();
-		else robot_stop();
+// 		if(check_sensor(mid_sensor_l) && check_sensor(mid_sensor_r) && (!check_sensor(left_sensor)) && (!check_sensor(right_sensor))) robot_forward();
+// 		else if(check_sensor(left_sensor) && check_sensor(mid_sensor_l) && (!check_sensor(mid_sensor_r)) && (!check_sensor(right_sensor))) robot_right();
+// 		else if(check_sensor(right_sensor) && check_sensor(mid_sensor_r) && (!check_sensor(mid_sensor_l)) && (!check_sensor(left_sensor))) robot_left();
+// 		else robot_stop();
 	}
 	return 0;
 }
