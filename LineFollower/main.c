@@ -13,13 +13,14 @@
 #define BAUD 9600
 #define UBBR_VAL (((F_CPU)/(BAUD*16UL)) - 1)            // Calculate value for UBBR
 
-#define MOTOR_LEFT_PORT			PORTD
+
 #define MOTOR_LEFT_PORT_DIRN	DDRD
 #define MOTOR_LEFT_PIN			PORTD7
 
-#define MOTOR_RIGHT_PORT		PORTB
 #define MOTOR_RIGHT_PORT_DIRN	DDRB
 #define MOTOR_RIGHT_PIN			PORTB3
+
+#define SENSOR_TRACK_TRUE_VAL	850
 
 
 void init_UART(void) {
@@ -72,62 +73,105 @@ void init_pwm(void) {
 	TCCR2 = 0x62;
 }
 
-uint8_t check_sensor(uint16_t sensor_val) {
-	if( sensor_val > 280) 
+uint8_t sensor_schmmit_trigger(uint16_t sensor_val) {
+	if( sensor_val > SENSOR_TRACK_TRUE_VAL) 
 		return 1;
 	else
 		return 0;
 }
 
-int main(void) {
-
-    uint16_t left_sensor = 0, mid_sensor_l = 0, mid_sensor_r = 0, right_sensor = 0;
-
+int main(void) {    
+	
 	init_UART();
 	init_adc();
 	init_pwm();
 	pwm_motor_left(128);
 	pwm_motor_right(128);
-	/*init_ios();*/
 	
 	// Setup for pipelining UART data to C standard IO library making printf() work
     static FILE mystdout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
     stdout = &mystdout;	
+	
 	uint16_t sensor_raw[6];
+	uint8_t sensor_digit[6];
 	
 	char error_weight[] = {-3, -2, -1, 1, 2, 3}; 
 		
-	float error = 0.0;
+	int8_t error = 0;
 	float pos_current = 0.0;
 	float pos_target = 0.0;
 	
 	// Tunning parameters 
-	float Kp = 0.0;
-	
+	float Kp = 1.7;
 	
 	// P, I and D values 
 	float P = 0.0;
+		
+	// Correction constants
+	uint16_t multiplier = 15;
+	int16_t correction = 0;
+	uint8_t basePWM = 180;
 	
-	
-	
+	int16_t pwm_left_motor = 0;
+	int16_t pwm_right_motor = 0;
+	uint8_t sum_sensor_digit = 0;
     while (1) {
+		error = 0;
+		
 		for(uint8_t i = 0; i < 6; i++) {
-			sensor_raw[i] = read_adc(i);
+			sensor_raw[i] = read_adc(i);			
 		}
+		
+		for(uint8_t i = 0; i < 6; i++) {
+			if(sensor_schmmit_trigger(sensor_raw[i]))
+				sensor_digit[i] = 1;				
+			else
+				sensor_digit[i] = 0;	
+			sum_sensor_digit += sensor_digit[i];
+		}
+		
+		for(uint8_t i = 0; i < 6; i++) {
+			if(sensor_digit[i])
+				error += error_weight[i];			
+		}
+		
+		// Calculation of Proportional Component
+		P = Kp * error;
+		correction = (int)P * multiplier;
+		
+		if(correction >= 255) correction = 255;
+		
+		if(correction <= -255) correction = -255;
+		
+		pwm_left_motor = basePWM + correction;
+		pwm_right_motor = basePWM - correction;
+		
+		
+		if(pwm_left_motor > 255) pwm_left_motor = 255;
+		if(pwm_right_motor > 255) pwm_right_motor = 255;
+		
+		if(pwm_left_motor < 0) pwm_left_motor = 0;
+		if(pwm_right_motor < 0) pwm_right_motor = 0;
+		
+		if(sum_sensor_digit) {
+			pwm_motor_left(pwm_left_motor);
+			pwm_motor_right(pwm_right_motor);								
+// 			pwm_motor_left(153);
+// 			pwm_motor_right(153);
+
+		} else {
+			pwm_motor_left(128);
+			pwm_motor_right(128);
+		}
+		sum_sensor_digit = 0;				
+				
+		printf("----------------------------------------------------------------------------------------------------------\n");
 		printf("Sensor 0 : %d\tSensor 1 : %d\tSensor 2 : %d\tSensor 3 : %d\tSensor 4 : %d\tSensor 5 : %d\n", sensor_raw[0], sensor_raw[1], sensor_raw[2], sensor_raw[3], sensor_raw[4], sensor_raw[5]);
+		printf("Error : %d\n", error);	
+		printf("PWM Left Motor : %d\t PWM Right Motor : %d\n", pwm_left_motor, pwm_right_motor);	
 		_delay_ms(500);
 		
-// 		left_sensor = read_adc(0);
-// 		mid_sensor_l = read_adc(1);
-// 		mid_sensor_r = read_adc(2);
-// 		right_sensor = read_adc(3);
-
-// 		if(check_sensor(mid_sensor_l) && check_sensor(mid_sensor_r) && (!check_sensor(left_sensor)) && (!check_sensor(right_sensor))) robot_forward();
-// 		else if(check_sensor(left_sensor) && check_sensor(mid_sensor_l) && (!check_sensor(mid_sensor_r)) && (!check_sensor(right_sensor))) robot_right();
-// 		else if(check_sensor(right_sensor) && check_sensor(mid_sensor_r) && (!check_sensor(mid_sensor_l)) && (!check_sensor(left_sensor))) robot_left();
-// 		else robot_stop();
 	}
 	return 0;
 }
-
 
