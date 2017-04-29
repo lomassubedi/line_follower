@@ -73,6 +73,9 @@ void init_pwm(void) {
 	TCCR2 = 0x62;
 }
 
+void init_timer1() {
+	
+}
 uint8_t sensor_schmmit_trigger(uint16_t sensor_val) {
 	if( sensor_val > SENSOR_TRACK_TRUE_VAL) 
 		return 1;
@@ -101,20 +104,26 @@ int main(void) {
 	float pos_current = 0.0;
 	float pos_target = 0.0;
 	
-	// Tunning parameters 
+	// Tunning parameters (gain) 
 	float Kp = 1.7;
+	float Kd = 3;
+	float Ki = 0.5;
 	
 	// P, I and D values 
 	float P = 0.0;
+	float D = 0.0;
+	float I = 0.0;
 		
 	// Correction constants
 	uint16_t multiplier = 15;
+	float last_error = 0;
 	int16_t correction = 0;
-	uint8_t basePWM = 180;
+	uint8_t basePWM = 200;
 	
 	int16_t pwm_left_motor = 0;
 	int16_t pwm_right_motor = 0;
 	uint8_t sum_sensor_digit = 0;
+	
     while (1) {
 		error = 0;
 		
@@ -137,7 +146,28 @@ int main(void) {
 		
 		// Calculation of Proportional Component
 		P = Kp * error;
-		correction = (int)P * multiplier;
+				
+		// Calculation of Integral Component
+		I = Ki * (error + last_error);
+		
+		// Calculation of Derivative Component
+		D = Kd * (error - last_error);
+		
+		
+		// ----------------- PD --------------------
+		/*correction = ((int)P  + (int)D) * multiplier;*/
+		
+		// ----------------- PI --------------------
+		/*correction = ((int)P  + (int)I) * multiplier;*/		
+		
+		// ----------------- PID --------------------
+		correction = ((int)P  + (int)I + (int)D) * multiplier;		
+		
+		// ----- Save last error value -------- //
+		last_error = error;
+		
+		
+		// ----- Apply correction to motors ----- //
 		
 		if(correction >= 255) correction = 255;
 		
@@ -156,20 +186,18 @@ int main(void) {
 		if(sum_sensor_digit) {
 			pwm_motor_left(pwm_left_motor);
 			pwm_motor_right(pwm_right_motor);								
-// 			pwm_motor_left(153);
-// 			pwm_motor_right(153);
-
 		} else {
 			pwm_motor_left(128);
 			pwm_motor_right(128);
 		}
 		sum_sensor_digit = 0;				
 				
-		printf("----------------------------------------------------------------------------------------------------------\n");
-		printf("Sensor 0 : %d\tSensor 1 : %d\tSensor 2 : %d\tSensor 3 : %d\tSensor 4 : %d\tSensor 5 : %d\n", sensor_raw[0], sensor_raw[1], sensor_raw[2], sensor_raw[3], sensor_raw[4], sensor_raw[5]);
-		printf("Error : %d\n", error);	
-		printf("PWM Left Motor : %d\t PWM Right Motor : %d\n", pwm_left_motor, pwm_right_motor);	
-		_delay_ms(500);
+// 		printf("----------------------------------------------------------------------------------------------------------\n");
+// 		printf("Sensor 0 : %d\tSensor 1 : %d\tSensor 2 : %d\tSensor 3 : %d\tSensor 4 : %d\tSensor 5 : %d\n", sensor_raw[0], sensor_raw[1], sensor_raw[2], sensor_raw[3], sensor_raw[4], sensor_raw[5]);
+// 		printf("Error : %d\n", error);	
+// 		printf("PWM Left Motor : %d\t PWM Right Motor : %d\n", pwm_left_motor, pwm_right_motor);	
+		/*_delay_ms(500);*/
+		
 		
 	}
 	return 0;
